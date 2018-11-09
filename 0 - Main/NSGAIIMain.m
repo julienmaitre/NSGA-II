@@ -1,0 +1,176 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                         %
+%              Set the Parameters of the Problem to Optimize              %
+%                                   and                                   %
+%                      the Parameters of the NSGA II                      %
+%                                                                         %
+% Author : Julien Maitre                                                  %
+% Date : October 04th 2018                                                %
+% Version : 2.0                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+clear all
+clc
+
+cd ..
+addpath('1 - Initialization')
+
+addpath('3 - Operators\Crossover')
+addpath('3 - Operators\Crossover\For Binary Code')
+addpath('3 - Operators\Crossover\For Real Number')
+
+addpath('3 - Operators\Mutation')
+addpath('3 - Operators\Mutation\For Binary Code')
+addpath('3 - Operators\Mutation\For Real Number')
+
+addpath('6 - Multi Objective Optimization\NSGA II')
+
+addpath('9 - Test Problems\Benchmark of Multi Objective Test Problems')
+
+%% User Parameters for the Problem to Optimize
+% Those functions are designed to test multi and many-objective
+% optimization algorithm
+
+functionName = 'TNK'; % name of the test function
+variableNumber = 2; % number of variables for each solution
+objectiveNumber = 2; % number of objectives of the test problem
+pointNumber = 500; % number of points to represent the Pareto optimal front, surface or other
+% For unconstrained test problems, the choices are :
+%                   'ZDT1' with 30 variables by default and 2 objectives only (convex)
+%                   'ZDT2' with 30 variables by default and 2 objectives only (concav)
+%                   'ZDT3' with 30 variables by default and 2 objectives only (convex and disconnected)
+%                   'ZDT4' with 10 variables by default and 2 objectives only (convex)
+%                   'ZDT6' with 10 variables by default and 2 objectives only (concav)
+%                   'SCH' with 1 variables only and 2 objectives only (convex)
+%                   'FON' with 3 variables only and 2 objectives only (concav)
+%                   'POL' with 2 variables only and 2 objectives only (convex and disconnected)
+%                   'KUR' with 3 variables by default and 2 objectives only (convex and disconnected)
+
+% For constrained test problems, the choices are :
+%                   'CONSTR' with 2 variables only and 2 objectives only (convex)
+%                   'SRN' with 2 variables only
+%                   'TNK' with 2 variables only
+%                   'WATER' with 2 variables only
+
+% For many-objective unconstrained test problems, the choices are :
+%                   'DTLZ1' with M + 5 - 1 variables only and where M is the number of objectives (linear)
+
+% Load details of the selected benchmark function
+[testFunctionParameters] = multiObjectiveTestProblems(functionName, variableNumber, objectiveNumber, pointNumber);
+
+%% Set the parameters of the location where the results are saved
+
+NSGAIIParameters.folderName = 'C:\Users\Julien\Documents\Julien\Université\Recherche\Projets\Plateforme d''Optimisation\Optimization\7 - Results'; % Pathname where the results are saved
+NSGAIIParameters.testIndex = 'Test 1'; % Name of the folder of the simulation test
+
+%% Set the parameters of the NSGA II (Nondominated Sorting Genetic Algorithm II)
+
+% The number of individuals that compose the population. It has to be a 
+% non negative integer > 0.
+NSGAIIParameters.populationSize = 100;
+
+% The maximum number of generation (or iteration). It has to be a non  
+% negative integer > 0. 
+NSGAIIParameters.maximumGeneration = 500;
+
+% Type of representation of the variables (or chromosomes) that the simple
+% genetic algorithm are working with for the variation operators.
+NSGAIIParameters.chromosomeRepresentation = 'Real Number';
+% The choices are :
+%                   'Binary Code'
+%                   'Real Number'
+
+% Remark : The binary representation needs more ressources. 
+
+% The number of bits (or genes of the chromosome) when we are working with 
+% binary representation of real number. It has to be a non negative integer
+% > 0. This parameter is only available when we choose the 'Binary Code' 
+% option in the previous parameter.
+NSGAIIParameters.numberOfBits = 20;
+
+% Remark : The number of bits has to be important (e.g. : 12) to reduce
+% possible error between the real number and its binary representation.
+
+%% Set the Parameters of the Replacement
+
+% The number of individuals that compose the offspring population. It has
+% to be a non negative integer > 0.
+NSGAIIParameters.offspringSize = 100;
+
+%% Set the Parameters of the Selection Process 
+
+% The number of individuals that compose the selected population used to 
+% create the offspring population. It has to be a non negative integer >0
+% and <= NSGAIIParameters.populationSize.
+NSGAIIParameters.matingPoolSize = NSGAIIParameters.populationSize;
+
+% Remark : Generally, the size of the mating pool is equal to the size of
+% the population. For NSGA II, the mating pool size has to be equal to the
+% population number.
+
+%% Set the Parameters for the Crossover and Mutation Operators
+
+% The crossover rate represents the probability of parent individuals to
+% cross over. It has to be a real number between 0 and 1.
+NSGAIIParameters.crossoverRate = 0.8;
+
+% Remark : Generally, the crossover rate is 0.8 by default.
+
+% The type of the crossover operator that creates offspring indiduals from
+% parent individuals.
+NSGAIIParameters.crossoverType = 'Simulated Binary Crossover';
+% The choices are :
+% For Binary Code, we have :
+%                   'Single-Point Crossover'
+%                   'Two-Point Crossover'
+%                   'Uniform Crossover'
+% For Real Number, we have :
+%                   'Whole Arithmetic Crossover'
+%                   'Local Arithmetic Crossover'
+%                   'Blend Alpha Crossover'
+%                   'Simulated Binary Crossover'
+
+% The alpha coefficient for the blend alpha crossover controls the range of
+% the random number generated between a and b. It is available only if the 
+% "Blend Alpha Crossover" is selected as the crossover operator. alpha =
+% 0.5 is a good value. 
+NSGAIIParameters.BLXAlphaCoefficient = 0.5;
+
+% The control parameter of the Simulated Binary Crossover to control the
+% spread factor. It is available only if the 'Simulated Binary Crossover' 
+% is selected as the crossover operator.
+NSGAIIParameters.controlParameterSBX = 20;
+
+% The mutation rate represents the probability of each gene of the
+% chromosome to mutate. It has to be a real number between 0 and 1.
+NSGAIIParameters.mutationRate = 0.01;
+
+% Remark : Generally, the crossover rate is very low (e.g. : 0.01).
+
+% The type of mutation operator that mutes offspring individuals.
+NSGAIIParameters.mutationType = 'Polynomial Mutation';
+% The choices are :
+% For Binary Code, we have :
+%                   'Bit-Flip Mutation'
+% For Real Number, we have :
+%                   'Uniform Mutation'
+%                   'Boundary Mutation'
+%                   'Non Uniform Mutation'
+%                   'Polynomial Mutation'
+
+% The control parameter of the Non Uniform Mutation to control the 
+% annealing speed. It is available only if the 'Non Uniform Mutation' is 
+% selected as the mutation operator.
+NSGAIIParameters.controlParameterNUMutation = 1;
+
+% The control parameter of the polynomial mutation. This parameter is only
+% available if the 'Polynomial Mutation' has been selected.
+NSGAIIParameters.distributionIndexForPMX = 100;
+
+%% Run NSGA II to Optimize the Test Problem Function Chosen
+
+sentence = ['Optimization with NSGA II of ' functionName ' is running ...'];
+disp(sentence)
+
+[population, objectiveValues] = NSGAII(functionName, NSGAIIParameters, testFunctionParameters);
